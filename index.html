@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>核心内容提炼器</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+     background:#0f172a;color:#e2e8f0;min-height:100vh;padding:20px}
+.wrap{max-width:800px;margin:0 auto}
+
+h1{text-align:center;font-size:1.65rem;padding:20px 0 6px;
+   background:linear-gradient(135deg,#60a5fa,#a78bfa);
+   -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:#64748b;font-size:.83rem;margin-bottom:24px}
+
+.badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:22px}
+.badge{background:#1e293b;border:1px solid #334155;border-radius:99px;
+       padding:3px 11px;font-size:.72rem;color:#94a3b8}
+
+.card{background:#1e293b;border:1px solid #334155;border-radius:12px;
+      padding:18px;margin-bottom:14px}
+.card label{display:block;font-size:.78rem;color:#94a3b8;margin-bottom:8px}
+
+.dropzone{border:2px dashed #334155;border-radius:12px;padding:42px 20px;
+          text-align:center;cursor:pointer;transition:all .2s;
+          background:#1e293b;margin-bottom:13px}
+.dropzone:hover,.dropzone.over{border-color:#60a5fa;background:#1e3a5f}
+.dz-icon{font-size:2.6rem;margin-bottom:10px}
+.dz-text{color:#94a3b8;font-size:.86rem;line-height:1.7}
+
+.file-info{background:#1e293b;border:1px solid #334155;border-radius:8px;
+           padding:11px 15px;display:none;align-items:center;
+           gap:12px;margin-bottom:13px}
+.file-info.show{display:flex}
+.fi-name{font-weight:600;font-size:.9rem}
+.fi-size{color:#94a3b8;font-size:.77rem}
+
+.btn-main{width:100%;padding:13px;
+          background:linear-gradient(135deg,#1d4ed8,#7c3aed);
+          color:#fff;font-size:.98rem;font-weight:600;
+          border:none;border-radius:10px;cursor:pointer;
+          margin-bottom:14px;transition:opacity .15s}
+.btn-main:hover:not(:disabled){opacity:.88}
+.btn-main:disabled{opacity:.38;cursor:not-allowed}
+
+.prog-box{background:#1e293b;border:1px solid #334155;border-radius:10px;
+          padding:14px;margin-bottom:13px;display:none}
+.prog-box.show{display:block}
+.prog-label{font-size:.82rem;color:#94a3b8;margin-bottom:8px}
+.prog-bg{background:#0f172a;border-radius:99px;height:7px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);
+           border-radius:99px;transition:width .3s;width:0%}
+
+.result-box{display:none}
+.result-box.show{display:block}
+.result-head{display:flex;justify-content:space-between;
+             align-items:center;margin-bottom:10px}
+.result-title{font-weight:600;font-size:.93rem}
+.export-row{display:flex;gap:8px}
+.btn-exp{border:none;border-radius:8px;padding:8px 15px;
+         cursor:pointer;font-size:.82rem;font-weight:500;
+         transition:opacity .15s}
+.btn-exp:hover{opacity:.82}
+.btn-txt{background:#064e3b;color:#6ee7b7}
+.btn-doc{background:#1e3a8a;color:#93c5fd}
+
+.result-text{background:#0f172a;border:1px solid #334155;border-radius:10px;
+             padding:18px;font-family:'Courier New',monospace;
+             font-size:.77rem;line-height:1.75;white-space:pre-wrap;
+             word-break:break-word;max-height:580px;overflow-y:auto;
+             color:#94a3b8}
+
+.err-box{background:#450a0a;border:1px solid #991b1b;border-radius:8px;
+         padding:13px 15px;color:#fca5a5;font-size:.84rem;
+         margin-bottom:13px;display:none;white-space:pre-line}
+.err-box.show{display:block}
+
+.tip{color:#475569;font-size:.73rem;margin-top:8px;line-height:1.5}
+code{background:#0f172a;padding:1px 5px;border-radius:4px;
+     font-family:monospace;font-size:.85em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🔬 核心内容提炼器</h1>
+  <p class="sub">纯算法提取 · 完全离线 · 零 AI 依赖 · 零费用</p>
+
+  <div class="badges">
+    <span class="badge">📄 TXT</span>
+    <span class="badge">📝 Markdown</span>
+    <span class="badge">🌐 HTML</span>
+    <span class="badge">📊 CSV</span>
+    <span class="badge">🧮 TF-IDF</span>
+    <span class="badge">🔗 TextRank</span>
+  </div>
+
+  <!-- 上传区 -->
+  <div class="dropzone" id="dropzone">
+    <div class="dz-icon">📂</div>
+    <div class="dz-text">
+      <strong>拖拽文件到此处</strong>，或点击选择<br>
+      支持 TXT / MD / HTML / CSV
+    </div>
+    <input type="file" id="fileInput"
+           accept=".txt,.md,.markdown,.html,.htm,.csv"
+           style="display:none"/>
+  </div>
+
+  <div class="file-info" id="fileInfo">
+    <div style="font-size:1.4rem" id="fiIcon">📄</div>
+    <div>
+      <div class="fi-name" id="fiName"></div>
+      <div class="fi-size" id="fiSize"></div>
+    </div>
+  </div>
+
+  <!-- 参数卡片 -->
+  <div class="card">
+    <label>⚙️ 提取参数（可选，保持默认即可）</label>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <label style="font-size:.8rem;color:#94a3b8">
+        关键词数量
+        <input type="number" id="cfgKeywords" value="30" min="5" max="80"
+               style="width:70px;margin-left:6px;background:#0f172a;
+                      border:1px solid #334155;border-radius:6px;
+                      padding:4px 8px;color:#e2e8f0;font-size:.85rem"/>
+      </label>
+      <label style="font-size:.8rem;color:#94a3b8">
+        核心句数量
+        <input type="number" id="cfgSentences" value="25" min="5" max="60"
+               style="width:70px;margin-left:6px;background:#0f172a;
+                      border:1px solid #334155;border-radius:6px;
+                      padding:4px 8px;color:#e2e8f0;font-size:.85rem"/>
+      </label>
+    </div>
+    <div class="tip">
+      算法：正向最大匹配分词 → TF-IDF 关键词 → TextRank 句子评分 → 多信号融合排序
+    </div>
+  </div>
+
+  <div class="err-box" id="errBox"></div>
+
+  <button class="btn-main" id="extractBtn" disabled>
+    🚀 开始提炼
+  </button>
+
+  <!-- 进度 -->
+  <div class="prog-box" id="progBox">
+    <div class="prog-label" id="progLabel">准备中...</div>
+    <div class="prog-bg">
+      <div class="prog-fill" id="progFill"></div>
+    </div>
+  </div>
+
+  <!-- 结果 -->
+  <div class="result-box" id="resultBox">
+    <div class="result-head">
+      <div class="result-title">✅ 提炼完成</div>
+      <div class="export-row">
+        <button class="btn-exp btn-txt" id="dlTxt">⬇ TXT</button>
+        <button class="btn-exp btn-doc" id="dlDoc">⬇ Word</button>
+      </div>
+    </div>
+    <div class="result-text" id="resultText"></div>
+  </div>
+
+</div>
+
+<script type="module">
+import { ChineseExtractor } from './core/chinese-extractor.js'
+import { parseFileBrowser  } from './core/parser.js'
+import { formatAsDocx      } from './core/formatter.js'
+
+// ── 工具 ──────────────────────────────
+const $   = id => document.getElementById(id)
+const fmt = b  => b < 1024 ? `${b}B`
+                : b < 1048576 ? `${(b/1024).toFixed(1)}KB`
+                : `${(b/1048576).toFixed(2)}MB`
+const iconMap = {
+  pdf:'📕',docx:'📘',doc:'📘',
+  md:'📝',markdown:'📝',
+  html:'🌐',htm:'🌐',
+  csv:'📊',txt:'📄'
+}
+
+// ── 状态 ──────────────────────────────
+let selectedFile = null
+let reportTxt    = ''
+let reportDocx   = null
+
+// ── 文件选择 ──────────────────────────
+function onFile(file) {
+  if (!file) return
+  selectedFile = file
+  const ext = file.name.split('.').pop().toLowerCase()
+  $('fiIcon').textContent = iconMap[ext] || '📄'
+  $('fiName').textContent = file.name
+  $('fiSize').textContent = fmt(file.size)
+  $('fileInfo').className = 'file-info show'
+  $('extractBtn').disabled = false
+  hideErr()
+}
+
+$('dropzone').addEventListener('click', () => $('fileInput').click())
+$('fileInput').addEventListener('change', e => onFile(e.target.files[0]))
+
+$('dropzone').addEventListener('dragover', e => {
+  e.preventDefault()
+  $('dropzone').classList.add('over')
+})
+$('dropzone').addEventListener('dragleave', () =>
+  $('dropzone').classList.remove('over')
+)
+$('dropzone').addEventListener('drop', e => {
+  e.preventDefault()
+  $('dropzone').classList.remove('over')
+  onFile(e.dataTransfer.files[0])
+})
+
+// ── 错误 ──────────────────────────────
+function showErr(msg) {
+  $('errBox').textContent = msg
+  $('errBox').className = 'err-box show'
+}
+function hideErr() {
+  $('errBox').className = 'err-box'
+}
+
+// ── 进度 ──────────────────────────────
+function setProgress({ progress, message }) {
+  $('progLabel').textContent = message
+  $('progFill').style.width  = `${progress}%`
+}
+
+// ── 提取 ──────────────────────────────
+$('extractBtn').addEventListener('click', async () => {
+  if (!selectedFile) { showErr('请先选择文件'); return }
+
+  hideErr()
+  $('extractBtn').disabled  = true
+  $('extractBtn').textContent = '⏳ 提炼中...'
+  $('progBox').className    = 'prog-box show'
+  $('resultBox').className  = 'result-box'
+
+  try {
+    setProgress({ progress: 3, message: '正在读取文件...' })
+    const text = await parseFileBrowser(selectedFile)
+
+    if (text.replace(/\s/g, '').length < 20) {
+      throw new Error('文件内容过少，请确认文件包含实际文字内容')
+    }
+
+    const extractor = new ChineseExtractor({
+      topKeywords:  parseInt($('cfgKeywords').value)  || 30,
+      topSentences: parseInt($('cfgSentences').value) || 25
+    })
+
+    // ChineseExtractor.extract 是同步的
+    // 用 setTimeout 让进度条有机会渲染
+    await new Promise(resolve => {
+      setTimeout(() => {
+        reportTxt  = extractor.extract(text, selectedFile.name, setProgress)
+        reportDocx = formatAsDocx(reportTxt)
+        resolve()
+      }, 30)
+    })
+
+    $('resultText').textContent = reportTxt
+    $('resultBox').className    = 'result-box show'
+    setProgress({ progress: 100, message: '✅ 完成' })
+
+  } catch (e) {
+    showErr(`提取失败：${e.message}`)
+    $('progBox').className = 'prog-box'
+  } finally {
+    $('extractBtn').disabled    = false
+    $('extractBtn').textContent = '🚀 开始提炼'
+  }
+})
+
+// ── 下载 TXT ──────────────────────────
+$('dlTxt').addEventListener('click', () => {
+  if (!reportTxt) return
+  const base = selectedFile.name.replace(/\.[^/.]+$/, '')
+  dl(new Blob([reportTxt], { type: 'text/plain;charset=utf-8' }),
+     `${base}_提炼.txt`)
+})
+
+// ── 下载 Word ─────────────────────────
+$('dlDoc').addEventListener('click', () => {
+  if (!reportDocx) return
+  const base = selectedFile.name.replace(/\.[^/.]+$/, '')
+  dl(new Blob([reportDocx], {
+       type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+     }),
+     `${base}_提炼.docx`)
+})
+
+function dl(blob, name) {
+  const url = URL.createObjectURL(blob)
+  const a   = Object.assign(document.createElement('a'),
+                { href: url, download: name })
+  a.click()
+  URL.revokeObjectURL(url)
+}
+</script>
+</body>
+</html>
