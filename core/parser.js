@@ -5,12 +5,10 @@
  * 零依赖
  */
 
-// ── 浏览器端 ────────────────────────────
-
 export function parseFileBrowser(file) {
   return new Promise((resolve, reject) => {
-    const ext = file.name.split('.').pop().toLowerCase()
-    const supported = ['txt','md','markdown','html','htm','csv']
+    const ext       = file.name.split('.').pop().toLowerCase()
+    const supported = ['txt', 'md', 'markdown', 'html', 'htm', 'csv']
 
     if (!supported.includes(ext)) {
       reject(new Error(
@@ -25,7 +23,6 @@ export function parseFileBrowser(file) {
     reader.onload = e => {
       let text = e.target.result
 
-      // HTML 去标签
       if (ext === 'html' || ext === 'htm') {
         const div = document.createElement('div')
         div.innerHTML = text
@@ -33,12 +30,8 @@ export function parseFileBrowser(file) {
         text = div.innerText || div.textContent || ''
       }
 
-      // CSV 转可读文本
       if (ext === 'csv') {
-        text = text
-          .split('\n')
-          .map(row => row.split(',').join('  '))
-          .join('\n')
+        text = text.split('\n').map(row => row.split(',').join('  ')).join('\n')
       }
 
       resolve(text)
@@ -48,14 +41,12 @@ export function parseFileBrowser(file) {
   })
 }
 
-// ── Node.js 端 ──────────────────────────
-
 export async function parseFileNode(filePath) {
   const fs   = await import('fs')
   const path = await import('path')
 
   const ext       = path.extname(filePath).toLowerCase()
-  const supported = ['.txt','.md','.markdown','.html','.htm','.csv']
+  const supported = ['.txt', '.md', '.markdown', '.html', '.htm', '.csv']
 
   if (!supported.includes(ext)) {
     throw new Error(
@@ -66,25 +57,20 @@ export async function parseFileNode(filePath) {
 
   let text = fs.readFileSync(filePath, 'utf-8')
 
-  // HTML 简单去标签
   if (ext === '.html' || ext === '.htm') {
     text = text
       .replace(/<script[\s\S]*?<\/script>/gi, '')
       .replace(/<style[\s\S]*?<\/style>/gi, '')
       .replace(/<[^>]+>/g, ' ')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g,  '&')
-      .replace(/&lt;/g,   '<')
-      .replace(/&gt;/g,   '>')
-      .replace(/&quot;/g, '"')
+      .replace(/&nbsp;/g,  ' ')
+      .replace(/&amp;/g,   '&')
+      .replace(/&lt;/g,    '<')
+      .replace(/&gt;/g,    '>')
+      .replace(/&quot;/g,  '"')
   }
 
-  // CSV 转文本
   if (ext === '.csv') {
-    text = text
-      .split('\n')
-      .map(row => row.split(',').join('  '))
-      .join('\n')
+    text = text.split('\n').map(row => row.split(',').join('  ')).join('\n')
   }
 
   return text
