@@ -1,39 +1,29 @@
 /**
  * formatter.js
- * 将提取结果输出为 TXT 和 DOCX
- * 零依赖：DOCX 通过手写最小化 OpenXML + ZIP 生成
+ * TXT + DOCX 生成（零依赖，手写 OpenXML + ZIP）
  */
-
-// ── TXT ──────────────────────────────────
 
 export function formatAsTxt(reportText) {
   return reportText
 }
-
-// ── DOCX 主入口 ──────────────────────────
 
 export function formatAsDocx(reportText) {
   const xml = buildDocumentXml(reportText)
   return buildZip(xml)
 }
 
-// ── OpenXML 文档内容构建 ─────────────────
-
 function escapeXml(str) {
   return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
 }
 
 function buildDocumentXml(text) {
-  const lines = text.split('\n')
-  const paras = lines.map(line => lineToParagraph(line))
-
+  const paras = text.split('\n').map(line => lineToParagraph(line))
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document
-  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:body>
     ${paras.join('\n    ')}
     <w:sectPr>
@@ -47,55 +37,43 @@ function buildDocumentXml(text) {
 function lineToParagraph(line) {
   const e = escapeXml(line)
 
-  // 大标题行
   if (line.includes('核心内容提炼报告')) {
     return para(e, { bold: true, size: 32, color: '1E3A8A', align: 'center', spaceAfter: 200 })
   }
-  // 分隔线
   if (/^[═─·]+$/.test(line.trim())) {
     return para(e, { color: '94A3B8', spaceAfter: 60 })
   }
-  // 一级标题 【一】【二】...
   if (/^【[一二三四五六七八九十\d]+】/.test(line)) {
     return para(e, { bold: true, size: 26, color: '1E40AF', spaceBefore: 280, spaceAfter: 120 })
   }
-  // 段落标题 ▶
   if (line.trimStart().startsWith('▶')) {
     return para(e, { bold: true, size: 22, color: '2563EB', spaceBefore: 180, spaceAfter: 80 })
   }
-  // 结构标题 ▌├─ └─
   if (/[▌├└]/.test(line)) {
     return para(e, { bold: true, color: '1D4ED8', spaceAfter: 60 })
   }
-  // No.xx 核心句
   if (/^\s+No\.\d+/.test(line)) {
     return para(e, { color: '374151', spaceAfter: 80 })
   }
-  // 关键词行
-  if (/^\s+\d+\.[^\s]+\(\d+次\)/.test(line)) {
-    return para(e, { bold: true, color: '7C3AED', spaceAfter: 60 })
-  }
-  // 空行
   if (!line.trim()) {
     return `<w:p><w:pPr><w:spacing w:after="80"/></w:pPr></w:p>`
   }
-  // 普通行
   return para(e, { spaceAfter: 60 })
 }
 
 function para(text, opts = {}) {
   const {
-    bold      = false,
-    size      = 21,
-    color     = '000000',
-    align     = 'left',
+    bold        = false,
+    size        = 21,
+    color       = '000000',
+    align       = 'left',
     spaceBefore = 0,
     spaceAfter  = 60
   } = opts
 
   const rPr = [
-    bold        ? '<w:b/>'                       : '',
-    size !== 21 ? `<w:sz w:val="${size}"/>`       : '',
+    bold        ? '<w:b/>'                           : '',
+    size !== 21 ? `<w:sz w:val="${size}"/>`           : '',
     color !== '000000' ? `<w:color w:val="${color}"/>` : ''
   ].filter(Boolean).join('')
 
@@ -108,8 +86,6 @@ function para(text, opts = {}) {
     </w:p>`
 }
 
-// ── ZIP 构建（手写最小化实现）────────────
-
 function buildZip(documentXml) {
   const files = {
     '[Content_Types].xml': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -119,21 +95,17 @@ function buildZip(documentXml) {
   <Override PartName="/word/document.xml"
     ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
 </Types>`,
-
     '_rels/.rels': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1"
     Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
     Target="word/document.xml"/>
 </Relationships>`,
-
     'word/_rels/document.xml.rels': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 </Relationships>`,
-
     'word/document.xml': documentXml
   }
-
   return zipFiles(files)
 }
 
@@ -148,13 +120,12 @@ function zipFiles(files) {
     const dataB = enc.encode(content)
     const crc   = crc32(dataB)
 
-    // local file header (30 bytes + name)
     const lh = new Uint8Array(30 + nameB.length)
     const lv = new DataView(lh.buffer)
     lv.setUint32(0,  0x04034b50, true)
     lv.setUint16(4,  20,         true)
     lv.setUint16(6,  0,          true)
-    lv.setUint16(8,  0,          true)  // no compression
+    lv.setUint16(8,  0,          true)
     lv.setUint16(10, 0,          true)
     lv.setUint16(12, 0,          true)
     lv.setUint32(14, crc,              true)
@@ -163,10 +134,8 @@ function zipFiles(files) {
     lv.setUint16(26, nameB.length,     true)
     lv.setUint16(28, 0,          true)
     lh.set(nameB, 30)
-
     locals.push(lh, dataB)
 
-    // central directory entry (46 bytes + name)
     const cd = new Uint8Array(46 + nameB.length)
     const cv = new DataView(cd.buffer)
     cv.setUint32(0,  0x02014b50, true)
@@ -187,12 +156,10 @@ function zipFiles(files) {
     cv.setUint32(38, 0,          true)
     cv.setUint32(42, offset,           true)
     cd.set(nameB, 46)
-
     central.push(cd)
     offset += lh.length + dataB.length
   }
 
-  // end of central directory
   const cdSize = central.reduce((s, c) => s + c.length, 0)
   const eocd   = new Uint8Array(22)
   const ev     = new DataView(eocd.buffer)
@@ -210,7 +177,6 @@ function zipFiles(files) {
   const out   = new Uint8Array(total)
   let   pos   = 0
   for (const p of parts) { out.set(p, pos); pos += p.length }
-
   return out
 }
 
