@@ -1,0 +1,14 @@
+{
+  "name": "essence-extractor",
+  "version": "2.0.0",
+  "description": "中文核心内容提炼器 - 纯算法，零AI依赖，零费用",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve . -p 5173 --no-clipboard",
+    "cli": "node cli.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {}
+}
