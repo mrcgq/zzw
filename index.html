@@ -8,35 +8,29 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;
      background:#0f172a;color:#e2e8f0;min-height:100vh;padding:20px}
-.wrap{max-width:800px;margin:0 auto}
-
+.wrap{max-width:820px;margin:0 auto}
 h1{text-align:center;font-size:1.65rem;padding:20px 0 6px;
    background:linear-gradient(135deg,#60a5fa,#a78bfa);
    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .sub{text-align:center;color:#64748b;font-size:.83rem;margin-bottom:24px}
-
 .badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:22px}
 .badge{background:#1e293b;border:1px solid #334155;border-radius:99px;
        padding:3px 11px;font-size:.72rem;color:#94a3b8}
-
 .card{background:#1e293b;border:1px solid #334155;border-radius:12px;
       padding:18px;margin-bottom:14px}
 .card label{display:block;font-size:.78rem;color:#94a3b8;margin-bottom:8px}
-
 .dropzone{border:2px dashed #334155;border-radius:12px;padding:42px 20px;
           text-align:center;cursor:pointer;transition:all .2s;
           background:#1e293b;margin-bottom:13px}
 .dropzone:hover,.dropzone.over{border-color:#60a5fa;background:#1e3a5f}
 .dz-icon{font-size:2.6rem;margin-bottom:10px}
 .dz-text{color:#94a3b8;font-size:.86rem;line-height:1.7}
-
 .file-info{background:#1e293b;border:1px solid #334155;border-radius:8px;
            padding:11px 15px;display:none;align-items:center;
            gap:12px;margin-bottom:13px}
 .file-info.show{display:flex}
 .fi-name{font-weight:600;font-size:.9rem}
 .fi-size{color:#94a3b8;font-size:.77rem}
-
 .btn-main{width:100%;padding:13px;
           background:linear-gradient(135deg,#1d4ed8,#7c3aed);
           color:#fff;font-size:.98rem;font-weight:600;
@@ -44,7 +38,6 @@ h1{text-align:center;font-size:1.65rem;padding:20px 0 6px;
           margin-bottom:14px;transition:opacity .15s}
 .btn-main:hover:not(:disabled){opacity:.88}
 .btn-main:disabled{opacity:.38;cursor:not-allowed}
-
 .prog-box{background:#1e293b;border:1px solid #334155;border-radius:10px;
           padding:14px;margin-bottom:13px;display:none}
 .prog-box.show{display:block}
@@ -52,7 +45,6 @@ h1{text-align:center;font-size:1.65rem;padding:20px 0 6px;
 .prog-bg{background:#0f172a;border-radius:99px;height:7px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);
            border-radius:99px;transition:width .3s;width:0%}
-
 .result-box{display:none}
 .result-box.show{display:block}
 .result-head{display:flex;justify-content:space-between;
@@ -65,28 +57,34 @@ h1{text-align:center;font-size:1.65rem;padding:20px 0 6px;
 .btn-exp:hover{opacity:.82}
 .btn-txt{background:#064e3b;color:#6ee7b7}
 .btn-doc{background:#1e3a8a;color:#93c5fd}
-
 .result-text{background:#0f172a;border:1px solid #334155;border-radius:10px;
              padding:18px;font-family:'Courier New',monospace;
              font-size:.77rem;line-height:1.75;white-space:pre-wrap;
              word-break:break-word;max-height:580px;overflow-y:auto;
              color:#94a3b8}
-
 .err-box{background:#450a0a;border:1px solid #991b1b;border-radius:8px;
          padding:13px 15px;color:#fca5a5;font-size:.84rem;
          margin-bottom:13px;display:none;white-space:pre-line}
 .err-box.show{display:block}
-
 .tip{color:#475569;font-size:.73rem;margin-top:8px;line-height:1.5}
-code{background:#0f172a;padding:1px 5px;border-radius:4px;
-     font-family:monospace;font-size:.85em}
+.param-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.param-row label{font-size:.8rem;color:#94a3b8;display:flex;align-items:center;gap:6px}
+.param-row input[type=number]{width:70px;background:#0f172a;border:1px solid #334155;
+  border-radius:6px;padding:4px 8px;color:#e2e8f0;font-size:.85rem}
+.mode-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.mode-item{display:flex;align-items:flex-start;gap:6px;cursor:pointer;
+           font-size:.8rem;color:#94a3b8}
+.mode-item input{margin-top:2px;cursor:pointer}
+.mode-item strong{color:#e2e8f0;display:block}
+.mode-item small{color:#64748b;display:block;margin-top:1px}
+.mode-label{display:block;font-size:.78rem;color:#94a3b8;margin-bottom:8px}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <h1>🔬 核心内容提炼器</h1>
-  <p class="sub">纯算法提取 · 完全离线 · 零 AI 依赖 · 零费用</p>
+  <p class="sub">纯算法 · 完全离线 · 零 AI 依赖 · 零费用</p>
 
   <div class="badges">
     <span class="badge">📄 TXT</span>
@@ -95,6 +93,7 @@ code{background:#0f172a;padding:1px 5px;border-radius:4px;
     <span class="badge">📊 CSV</span>
     <span class="badge">🧮 TF-IDF</span>
     <span class="badge">🔗 TextRank</span>
+    <span class="badge">🏗️ 骨架识别</span>
   </div>
 
   <!-- 上传区 -->
@@ -117,27 +116,49 @@ code{background:#0f172a;padding:1px 5px;border-radius:4px;
     </div>
   </div>
 
-  <!-- 参数卡片 -->
+  <!-- 参数设置 -->
   <div class="card">
-    <label>⚙️ 提取参数（可选，保持默认即可）</label>
-    <div style="display:flex;gap:16px;flex-wrap:wrap">
-      <label style="font-size:.8rem;color:#94a3b8">
+    <label>⚙️ 提取参数</label>
+
+    <div class="param-row">
+      <label>
         关键词数量
-        <input type="number" id="cfgKeywords" value="30" min="5" max="80"
-               style="width:70px;margin-left:6px;background:#0f172a;
-                      border:1px solid #334155;border-radius:6px;
-                      padding:4px 8px;color:#e2e8f0;font-size:.85rem"/>
+        <input type="number" id="cfgKeywords" value="30" min="5" max="80"/>
       </label>
-      <label style="font-size:.8rem;color:#94a3b8">
+      <label>
         核心句数量
-        <input type="number" id="cfgSentences" value="25" min="5" max="60"
-               style="width:70px;margin-left:6px;background:#0f172a;
-                      border:1px solid #334155;border-radius:6px;
-                      padding:4px 8px;color:#e2e8f0;font-size:.85rem"/>
+        <input type="number" id="cfgSentences" value="25" min="5" max="60"/>
       </label>
     </div>
+
+    <span class="mode-label">提取模式</span>
+    <div class="mode-row">
+      <label class="mode-item">
+        <input type="radio" name="renderMode" value="auto" checked/>
+        <span>
+          <strong>🔍 自动检测</strong>
+          <small>根据文档结构自动选择模式</small>
+        </span>
+      </label>
+      <label class="mode-item">
+        <input type="radio" name="renderMode" value="structure"/>
+        <span>
+          <strong>🏗️ 骨架模式</strong>
+          <small>有标题/法则编号的结构化文档</small>
+        </span>
+      </label>
+      <label class="mode-item">
+        <input type="radio" name="renderMode" value="statistical"/>
+        <span>
+          <strong>📊 统计模式</strong>
+          <small>普通文章、新闻、报告、小说</small>
+        </span>
+      </label>
+    </div>
+
     <div class="tip">
-      算法：正向最大匹配分词 → TF-IDF 关键词 → TextRank 句子评分 → 多信号融合排序
+      骨架模式：提取标题层级、法则编号、禁止项、必须项、公式<br>
+      统计模式：TF-IDF 关键词 + TextRank 核心句子排序
     </div>
   </div>
 
@@ -180,10 +201,10 @@ const fmt = b  => b < 1024 ? `${b}B`
                 : b < 1048576 ? `${(b/1024).toFixed(1)}KB`
                 : `${(b/1048576).toFixed(2)}MB`
 const iconMap = {
-  pdf:'📕',docx:'📘',doc:'📘',
-  md:'📝',markdown:'📝',
-  html:'🌐',htm:'🌐',
-  csv:'📊',txt:'📄'
+  pdf:'📕', docx:'📘', doc:'📘',
+  md:'📝',  markdown:'📝',
+  html:'🌐', htm:'🌐',
+  csv:'📊',  txt:'📄'
 }
 
 // ── 状态 ──────────────────────────────
@@ -220,7 +241,7 @@ $('dropzone').addEventListener('drop', e => {
   onFile(e.dataTransfer.files[0])
 })
 
-// ── 错误 ──────────────────────────────
+// ── 错误提示 ──────────────────────────
 function showErr(msg) {
   $('errBox').textContent = msg
   $('errBox').className = 'err-box show'
@@ -240,10 +261,10 @@ $('extractBtn').addEventListener('click', async () => {
   if (!selectedFile) { showErr('请先选择文件'); return }
 
   hideErr()
-  $('extractBtn').disabled  = true
+  $('extractBtn').disabled    = true
   $('extractBtn').textContent = '⏳ 提炼中...'
-  $('progBox').className    = 'prog-box show'
-  $('resultBox').className  = 'result-box'
+  $('progBox').className      = 'prog-box show'
+  $('resultBox').className    = 'result-box'
 
   try {
     setProgress({ progress: 3, message: '正在读取文件...' })
@@ -253,13 +274,16 @@ $('extractBtn').addEventListener('click', async () => {
       throw new Error('文件内容过少，请确认文件包含实际文字内容')
     }
 
+    // 读取模式选择
+    const renderMode = document.querySelector('input[name="renderMode"]:checked')?.value || 'auto'
+
     const extractor = new ChineseExtractor({
       topKeywords:  parseInt($('cfgKeywords').value)  || 30,
-      topSentences: parseInt($('cfgSentences').value) || 25
+      topSentences: parseInt($('cfgSentences').value) || 25,
+      renderMode
     })
 
-    // ChineseExtractor.extract 是同步的
-    // 用 setTimeout 让进度条有机会渲染
+    // 同步计算，用 setTimeout 让进度条有机会渲染
     await new Promise(resolve => {
       setTimeout(() => {
         reportTxt  = extractor.extract(text, selectedFile.name, setProgress)
@@ -294,9 +318,8 @@ $('dlDoc').addEventListener('click', () => {
   if (!reportDocx) return
   const base = selectedFile.name.replace(/\.[^/.]+$/, '')
   dl(new Blob([reportDocx], {
-       type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-     }),
-     `${base}_提炼.docx`)
+    type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  }), `${base}_提炼.docx`)
 })
 
 function dl(blob, name) {
